@@ -1,3 +1,8 @@
+/*
+Previo 3 							Márquez Abundis Mariana
+30 de agosto de 2026							320035014
+*/
+
 #include<iostream>
 
 //#define GLEW_STATIC
@@ -127,42 +132,42 @@ int main() {
 		0.5f,  0.5f, 0.5f,  1.0f, 0.0f,0.0f,
 		-0.5f,  0.5f, 0.5f, 1.0f, 0.0f,0.0f,
 		-0.5f, -0.5f, 0.5f, 1.0f, 0.0f,0.0f,
-
-		-0.5f, -0.5f,-0.5f, 0.0f, 1.0f,0.0f,//Back
+		
+	    -0.5f, -0.5f,-0.5f, 0.0f, 1.0f,0.0f,//Back
 		 0.5f, -0.5f,-0.5f, 0.0f, 1.0f,0.0f,
 		 0.5f,  0.5f,-0.5f, 0.0f, 1.0f,0.0f,
 		 0.5f,  0.5f,-0.5f, 0.0f, 1.0f,0.0f,
-		-0.5f,  0.5f,-0.5f, 0.0f, 1.0f,0.0f,
-		-0.5f, -0.5f,-0.5f, 0.0f, 1.0f,0.0f,
-
+	    -0.5f,  0.5f,-0.5f, 0.0f, 1.0f,0.0f,
+	    -0.5f, -0.5f,-0.5f, 0.0f, 1.0f,0.0f,
+		
 		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,1.0f,
 		 0.5f, -0.5f, -0.5f,  0.0f, 0.0f,1.0f,
 		 0.5f,  0.5f, -0.5f,  0.0f, 0.0f,1.0f,
 		 0.5f,  0.5f, -0.5f,  0.0f, 0.0f,1.0f,
 		 0.5f,  0.5f,  0.5f,  0.0f, 0.0f,1.0f,
 		 0.5f,  -0.5f, 0.5f, 0.0f, 0.0f,1.0f,
-
+      
 		-0.5f,  0.5f,  0.5f,  1.0f, 1.0f,0.0f,
 		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,0.0f,
 		-0.5f, -0.5f, -0.5f,  1.0f, 1.0f,0.0f,
 		-0.5f, -0.5f, -0.5f,  1.0f, 1.0f,0.0f,
 		-0.5f, -0.5f,  0.5f,  1.0f, 1.0f,0.0f,
 		-0.5f,  0.5f,  0.5f,  1.0f, 1.0f,0.0f,
-
+		
 		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,1.0f,
 		0.5f, -0.5f, -0.5f,  0.0f, 1.0f,1.0f,
 		0.5f, -0.5f,  0.5f,  0.0f, 1.0f,1.0f,
 		0.5f, -0.5f,  0.5f,  0.0f, 1.0f,1.0f,
 		-0.5f, -0.5f,  0.5f, 0.0f, 1.0f,1.0f,
 		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,1.0f,
-
+		
 		-0.5f,  0.5f, -0.5f, 1.0f, 0.2f,0.5f,
 		0.5f,  0.5f, -0.5f,  1.0f, 0.2f,0.5f,
 		0.5f,  0.5f,  0.5f,  1.0f, 0.2f,0.5f,
 		0.5f,  0.5f,  0.5f,  1.0f, 0.2f,0.5f,
 		-0.5f,  0.5f,  0.5f, 1.0f, 0.2f,0.5f,
 		-0.5f,  0.5f, -0.5f, 1.0f, 0.2f,0.5f,
-	}; 
+	};
 
 
 
@@ -246,7 +251,7 @@ int main() {
 
 		model = glm::mat4(1);
 		model = glm::translate(model, glm::vec3(-5.0f, 0.0f, 0.0f));//para dibujar cubo
-		model = glm::rotate(model, -40.0f, glm::vec3(1.0f, 0.0f, 0.0f)); // use to compare orthographic and perspective projection
+		model = glm::rotate(model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f)); // use to compare orthographic and perspective projection
 		model = glm::scale(model, glm::vec3(6.0f, 2.0f, 3.0f));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));//antes de mandar info
 		glDrawArrays(GL_TRIANGLES, 0, 36);
