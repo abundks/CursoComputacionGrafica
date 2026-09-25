@@ -1,6 +1,6 @@
 /*
-Previo 6                      Márquez Abundis Mariana
-20 Septiembre 2026                320035014
+Práctica 6                      Márquez Abundis Mariana
+25 Septiembre 2026                320035014
 */
 
 // Std. Includes
@@ -100,7 +100,11 @@ int main( )
     
     // Load models
     Model dog((char*)"Models/RedDog.obj");//----------------cargar la ruta y el nombre del objeto 
-    Model tiger((char*)"Models/tiger.obj");
+    Model arbol((char*)"Models/arbol.obj");
+    Model cuarzo((char*)"Models/cuarzo.obj");
+    Model hat((char*)"Models/hat.obj");
+    Model hongo((char*)"Models/hongo.obj");
+    Model amanita((char*)"Models/amanita.obj");
     glm::mat4 projection = glm::perspective( camera.GetZoom( ), ( float )SCREEN_WIDTH/( float )SCREEN_HEIGHT, 0.1f, 100.0f );
     
   
@@ -129,24 +133,58 @@ int main( )
 
         // Draw the loaded model
         glm::mat4 model(1);
+       // model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
         dog.Draw(shader); //-------------para dibujar 
         
         //figura agregada para previo
-        model = glm::mat4(1.0f); 
+        /*model = glm::mat4(1.0f); 
         model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
         model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f)); 
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        tiger.Draw(shader);
+        tiger.Draw(shader);*/
 
 
-        /*----------------para duplicar el mismo modelo
-        model = glm::translate(model, glm::vec3(3.0f, 0.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
+        //----------------ARBOL 
+        model = glm::mat4(1.0f); 
+        model = glm::translate(model, glm::vec3(0.0f, -1.4f, -13.0f));
+        //(model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(6.0f,2.0f, 6.0f)); 
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        dog.Draw(shader);
-        */
+        arbol.Draw(shader);
+
+        //-----------------SOMBRERO
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.03f, 0.32f, 0.2f));
+        //(model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.06f, 0.06f, 0.06f));
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        hat.Draw(shader);
+
+        //------------CASITA HONGO
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-1.0f, -0.4f, -1.5f));
+        model = glm::rotate(model, glm::radians(290.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        hongo.Draw(shader);
+
+        //----------HONGOS
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.8f, -0.3f, -0.5f));
+        //(model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        amanita.Draw(shader);
+
+        //-------CUARZO
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-0.8f, -0.4f, 0.5f));
+        //(model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.5f, 0.7f, 0.5f));
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        cuarzo.Draw(shader);
 
         // Swap the buffers
         glfwSwapBuffers( window );
