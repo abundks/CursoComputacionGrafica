@@ -1,5 +1,5 @@
 /* 
-Previo 7							Márquez Abundis Mariana
+Práctica 7							Márquez Abundis Mariana
 2 de octubre 2026					32003514
 */
 
