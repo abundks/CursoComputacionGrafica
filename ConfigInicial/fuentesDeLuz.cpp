@@ -50,11 +50,13 @@ bool active;
 
 // Positions of the point lights
 glm::vec3 pointLightPositions[] = {
-	glm::vec3(0.0f,0.0f, 0.0f),
-	glm::vec3(0.0f,0.0f, 0.0f),
-	glm::vec3(0.0f,0.0f,  0.0f),
-	glm::vec3(0.0f,0.0f, 0.0f)
+	glm::vec3(0.0f, 0.0f, 0.0f),            // Luz 0
+	glm::vec3(-0.8f, -0.4f, 0.5f),          // Luz 1 (Posición del Cuarzo)
+	glm::vec3(0.0f, 0.0f, 0.0f),            // Luz 2
+	glm::vec3(0.0f, 0.0f, 0.0f)             // Luz 3
 };
+
+
 
 float vertices[] = {
 	 -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
@@ -160,7 +162,12 @@ int main()
 	Shader lampShader("Shader/lamp.vs", "Shader/lamp.frag");
 	
 	Model Dog((char*)"Models/ball.obj");
-	Model Piso((char*)"Models/piso.obj");
+	//Model Piso((char*)"Models/piso.obj");
+	Model arbol((char*)"Models/arbol.obj");
+	Model cuarzo((char*)"Models/cuarzo.obj");
+	Model hat((char*)"Models/hat.obj");
+	Model hongo((char*)"Models/hongo.obj");
+	Model amanita((char*)"Models/amanita.obj");
 
 
 
@@ -243,15 +250,14 @@ int main()
 		glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[0].quadratic"),0.075f);
 
 
-
-		// Point light 2
+		// Point light 2 (Luz emitida por el Cuarzo)
 		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[1].position"), pointLightPositions[1].x, pointLightPositions[1].y, pointLightPositions[1].z);
-		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[1].ambient"), 0.4f, 0.4f, 0.4f);
-		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[1].diffuse"), 0.0f, 0.0f, 0.0f);
-		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[1].specular"), 0.0f, 0.0f, 0.0f);
+		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[1].ambient"), 0.1f, 0.2f, 0.3f);  // Luz ambiental suave
+		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[1].diffuse"), 0.2f, 0.7f, 1.0f);  // Color de brillo (Azul/Cian)
+		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[1].specular"), 0.5f, 0.8f, 1.0f);  // Brillo especular
 		glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[1].constant"), 1.0f);
-		glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[1].linear"), 0.0f);
-		glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[1].quadratic"), 0.0f);
+		glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[1].linear"), 0.09f); // Alcance medio
+		glUniform1f(glGetUniformLocation(lightingShader.Program, "pointLights[1].quadratic"), 0.032f);
 
 		// Point light 3
 		glUniform3f(glGetUniformLocation(lightingShader.Program, "pointLights[2].position"), pointLightPositions[2].x, pointLightPositions[2].y, pointLightPositions[2].z);
@@ -301,17 +307,49 @@ int main()
 
 
 		glm::mat4 model(1);
-
-	
-
 		//Carga de modelo 
         view = camera.GetViewMatrix();	
-		model = glm::mat4(1);
+		/*model = glm::mat4(1);
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		Piso.Draw(lightingShader);
+		Piso.Draw(lightingShader);*/
+
+		//----------------ARBOL
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.0f, -1.4f, -13.0f));
+		model = glm::scale(model, glm::vec3(6.0f, 2.0f, 6.0f));
+		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		arbol.Draw(lightingShader);
+
+		//-----------------SOMBRERO
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.03f, 0.32f, 0.2f));
+		model = glm::scale(model, glm::vec3(0.06f, 0.06f, 0.06f));
+		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		hat.Draw(lightingShader);
+
+		//------------CASITA HONGO
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-1.0f, -0.4f, -1.5f));
+		model = glm::rotate(model, glm::radians(290.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		hongo.Draw(lightingShader);
+
+		//----------HONGOS
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.8f, -0.3f, -0.5f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		glUniformMatrix4fv(glGetUniformLocation(lightingShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		amanita.Draw(lightingShader);
+
+		//-------CUARZO (Luz Puntual)
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, pointLightPositions[1]); // Usa directamente la posición de la luz
+		model = glm::scale(model, glm::vec3(0.5f, 0.7f, 0.5f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		cuarzo.Draw(lightingShader);
 
 
-	
 		model = glm::mat4(1);
 		glEnable(GL_BLEND);//Avtiva la funcionalidad para trabajar el canal alfa
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
