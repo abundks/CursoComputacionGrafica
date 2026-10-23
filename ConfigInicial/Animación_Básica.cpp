@@ -1,5 +1,5 @@
-//Previo 10						Márquez Abundis Mariana 
-//18 de octubre 2026					32003514
+//Práctica 10						Márquez Abundis Mariana 
+//23 de octubre 2026					32003514
 
 #include <iostream>
 #include <cmath>
@@ -103,10 +103,17 @@ float vertices[] = {
 
 glm::vec3 Light1 = glm::vec3(0);
 //Anim
-float posYBall = 0.0f;
+/*float posYBall = 0.0f;
 bool AnimBall = false;
-bool subiendo = true; 
+bool subiendo = true; */
+float angleBall = 0.0f;     // Ángulo actual en radianes o grados
+float radioBall = 1.5f;     // Distancia entre el perrito y la pelota
+float heightBall = 0.5f;    // Altura fija (Y) respecto al piso
+glm::vec3 dogBasePos = glm::vec3(0.0f, 0.0f, 0.0f);
+bool AnimBall = false;
 
+float dogJumpY = 0.0f;    
+float ballOffsetY = 0.0f;
 
 // Deltatime
 GLfloat deltaTime = 0.0f;	// Time between current frame and last frame
@@ -289,16 +296,29 @@ int main()
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		Piso.Draw(lightingShader);
 
-		model = glm::mat4(1);
+		// --- PERRITO (Dog) ---
+		float dogX = dogBasePos.x + radioBall * cos(-angleBall);
+		float dogZ = dogBasePos.z + radioBall * sin(-angleBall);
+
+		model = glm::mat4(1.0f);
+		// El perrito salta hacia arriba solo cuando impacta
+		model = glm::translate(model, glm::vec3(dogX, dogBasePos.y + dogJumpY, dogZ));
+		model = glm::rotate(model, angleBall + glm::radians(-180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		glUniform1i(glGetUniformLocation(lightingShader.Program, "transparency"), 0);
 		Dog.Draw(lightingShader);
 
-		model = glm::mat4(1);
+		// --- PELOTA (Ball) ---
+		float ballX = dogBasePos.x + radioBall * cos(angleBall);
+		float ballZ = dogBasePos.z + radioBall * sin(angleBall);
+
+		model = glm::mat4(1.0f);
+		// La pelota nace a la altura de la cabeza (heightBall) y realiza la parábola hacia arriba (+ ballOffsetY)
+		model = glm::translate(model, glm::vec3(ballX, heightBall + ballOffsetY, ballZ));
+
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		model = glm::translate(model, glm::vec3(0.0f, posYBall, 0.0f));
 
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		glUniform1i(glGetUniformLocation(lightingShader.Program, "transparency"), 1);
@@ -451,21 +471,39 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mode
 void Animation() {
 	if (AnimBall)
 	{
-		float velocidad = 0.002f; // Ajusta la velocidad según sea necesario
+		float velocidad = 1.5f;
+		angleBall += velocidad * deltaTime;
 
-		if (subiendo) {
-			posYBall += velocidad;
-			if (posYBall >= 1.5f) { // Límite superior
-				subiendo = false;
-			}
+		if (angleBall >= glm::two_pi<float>()) {
+			angleBall -= glm::two_pi<float>();
 		}
-		else {
-			posYBall -= velocidad;
-			if (posYBall <= 0.0f) { // Límite inferior
-				subiendo = true;
-			}
+
+		// 1. Calculamos las posiciones X, Z actuales
+		float dogX = dogBasePos.x + radioBall * cos(-angleBall);
+		float dogZ = dogBasePos.z + radioBall * sin(-angleBall);
+
+		float ballX = dogBasePos.x + radioBall * cos(angleBall);
+		float ballZ = dogBasePos.z + radioBall * sin(angleBall);
+
+		// 2. Distancia 2D entre el perrito y la pelota
+		float dist = glm::distance(glm::vec2(dogX, dogZ), glm::vec2(ballX, ballZ));
+
+		// 3. TRAYECTORIA PARABÓLICA CONTINUA (Un solo arco elevado por cada mitad de la órbita)
+		// Usamos abs(sin(angleBall)) para que haga UN SOLO arco de bote en cada tramo entre golpes
+		float alturaMaximaBote = 1.2f; // Ajusta qué tan alto sube la pelota en el aire
+		ballOffsetY = abs(sin(angleBall)) * alturaMaximaBote;
+
+		// 4. BRINCO DEL PERRITO (Brinca únicamente cuando la pelota cae y se encuentran)
+		if (dist < 0.6f)
+		{
+			// Mapeamos la cercanía a un impulso hacia arriba justo para dar el cabezazo
+			float factorImpacto = sin((1.0f - (dist / 0.6f)) * glm::half_pi<float>());
+			dogJumpY = factorImpacto * 0.4f; // Altura del brinco del perrito
 		}
-		printf("%f", posYBall);
+		else
+		{
+			dogJumpY = 0.0f; // Vuelve al suelo mientras la pelota realiza el vuelo parabólico
+		}
 	}
 }
 
