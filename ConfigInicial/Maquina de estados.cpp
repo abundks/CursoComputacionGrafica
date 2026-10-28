@@ -1,5 +1,5 @@
 /*
-Previo 11				Márquez Abundis Mariana 
+Práctica 11				Márquez Abundis Mariana 
 25 de octubre 2026			320035014
 */
 
@@ -118,12 +118,11 @@ glm::vec3 dogPos (0.0f,0.0f,0.0f);
 float dogRot = 0.0f;
 bool step = false;
 
+int estadoDog = 0;      // 0: Caminar hacia adelante, 1: Girar 90°, 2: Caminar hacia la esquina, 3: Detenido
+float targetRot = 0.0f; // Ángulo objetivo para el giro
 
-
-// Deltatime
-GLfloat deltaTime = 0.0f;	// Time between current frame and last frame
-GLfloat lastFrame = 0.0f;  	// Time of last frame
-
+GLfloat deltaTime = 0.0f;
+GLfloat lastFrame = 0.0f;  
 int main()
 {
 	// Init GLFW
@@ -186,9 +185,7 @@ int main()
 	Model Ball((char*)"Models/ball.obj");
 
 
-
-	// First, set the container's VAO (and VBO)
-	GLuint VBO, VAO;
+	GLuint VBO,VAO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glBindVertexArray(VAO);
@@ -496,7 +493,7 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mode
 		}
 		else
 		{
-			Light1 = glm::vec3(0);//Cuado es solo un valor en los 3 vectores pueden dejar solo una componente
+			Light1 = glm::vec3(0);
 		}
 	}
 	if (keys[GLFW_KEY_N])
@@ -506,11 +503,21 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mode
 	}
 	if (keys[GLFW_KEY_B])
 	{
-		dogAnim = 1;
+		AnimDog = !AnimDog; // Alterna entre true y false
+
+		if (AnimDog) {
+			dogAnim = 1;    // Inicia la animación
+		}
+		else {
+			dogAnim = 0;    // Detiene la animación inmediatamente al presionar B
+
+			// Restablece valores para pausar con postura limpia
+			RLegs = 0.0f; FLegs = 0.0f; head = 0.0f; tail = 0.0f;
+		}
+	}
 
 	}
 	
-}
 void Animation() {
 	if (AnimBall) {
 		rotBall += 0.4f;
@@ -519,50 +526,181 @@ void Animation() {
 	if (AnimDog) {
 		rotDog -= 0.6f;
 	}
+	const float MAX_Z = 2.2f;           // Límite 1° tramo (Z)
+	const float MAX_X = 2.2f;           // Límite 2° tramo (X)
+	const float MIN_Z = -2.2f;          // Límite 3° tramo (Z de regreso)
+	const float MIN_X = -2.2f;          // Límite 4° tramo (X de regreso)
 
-	// Límite del borde 
-	const float MAX_Z = 2.3f;
+	const float ROTATION_SPEED = 0.15f; // Velocidad de giro
+	const float MOVE_SPEED = 0.0009f;   // Velocidad de caminata
 
 	if (dogAnim == 1) {
-		// Verificar si el perrito aún no ha llegado al borde
-		if (dogPos.z < MAX_Z) {
-			// Animación de las extremidades y articulaciones
-			if (!step) {
-				RLegs += 0.03f;
-				FLegs += 0.03f;
-				head += 0.03f;
-				tail += 0.03f;
 
-				if (RLegs > 15.0f)
-					step = true;
+		// Avanzar en Z desde 0.0 hasta 2.2 (Esquina 1)
+		if (estadoDog == 0) {
+			if (dogPos.z < MAX_Z) {
+				if (!step) {
+					RLegs += 0.03f; FLegs += 0.03f; head += 0.03f; tail += 0.03f;
+					if (RLegs > 15.0f) step = true;
+				}
+				else {
+					RLegs -= 0.03f; FLegs -= 0.03f; head -= 0.03f; tail -= 0.03f;
+					if (RLegs < -15.0f) step = false;
+				}
+				dogPos.z += MOVE_SPEED;
 			}
 			else {
-				RLegs -= 0.03f;
-				FLegs -= 0.03f;
-				head -= 0.03f;
-				tail -= 0.03f;
-
-				if (RLegs < -15.0f)
-					step = false;
+				estadoDog = 1;
+				targetRot = dogRot + 90.0f;
+				RLegs = 0.0f; FLegs = 0.0f; head = 0.0f; tail = 0.0f;
 			}
-
-			// Desplazamiento hacia adelante
-			dogPos.z += 0.0005f;
 		}
-		else {
-			// Detener el desplazamiento y apagar la animación
-			dogAnim = 0;
 
-			// Restablecer extremidades a su posición normal
-			RLegs = 0.0f;
-			FLegs = 0.0f;
-			head = 0.0f;
-			tail = 0.0f;
+		// Primer giro (90°)
+		else if (estadoDog == 1) {
+			if (dogRot < targetRot) {
+				dogRot += ROTATION_SPEED;
+			}
+			else {
+				dogRot = targetRot;
+				estadoDog = 2;
+			}
+		}
+
+		//Avanzar en X desde 0.0 hasta 2.2 (Esquina 2)
+		else if (estadoDog == 2) {
+			if (dogPos.x < MAX_X) {
+				if (!step) {
+					RLegs += 0.03f; FLegs += 0.03f; head += 0.03f; tail += 0.03f;
+					if (RLegs > 15.0f) step = true;
+				}
+				else {
+					RLegs -= 0.03f; FLegs -= 0.03f; head -= 0.03f; tail -= 0.03f;
+					if (RLegs < -15.0f) step = false;
+				}
+				dogPos.x += MOVE_SPEED;
+			}
+			else {
+				estadoDog = 3;
+				targetRot = dogRot + 90.0f;
+				RLegs = 0.0f; FLegs = 0.0f; head = 0.0f; tail = 0.0f;
+			}
+		}
+
+		//Segundo giro (180° acumulados)
+		else if (estadoDog == 3) {
+			if (dogRot < targetRot) {
+				dogRot += ROTATION_SPEED;
+			}
+			else {
+				dogRot = targetRot;
+				estadoDog = 4;
+			}
+		}
+
+		//Avanzar en Z desde 2.2 hasta -2.2 (Esquina 3)
+		else if (estadoDog == 4) {
+			if (dogPos.z > MIN_Z) {
+				if (!step) {
+					RLegs += 0.03f; FLegs += 0.03f; head += 0.03f; tail += 0.03f;
+					if (RLegs > 15.0f) step = true;
+				}
+				else {
+					RLegs -= 0.03f; FLegs -= 0.03f; head -= 0.03f; tail -= 0.03f;
+					if (RLegs < -15.0f) step = false;
+				}
+				dogPos.z -= MOVE_SPEED;
+			}
+			else {
+				estadoDog = 5;
+				targetRot = dogRot + 90.0f;
+				RLegs = 0.0f; FLegs = 0.0f; head = 0.0f; tail = 0.0f;
+			}
+		}
+
+		//  Tercer giro a la izquierda (270° acumulados)
+		else if (estadoDog == 5) {
+			if (dogRot < targetRot) {
+				dogRot += ROTATION_SPEED;
+			}
+			else {
+				dogRot = targetRot;
+				estadoDog = 6;
+			}
+		}
+
+		//  Avanzar en X desde 2.2 hasta -2.2 (Esquina 4)
+		else if (estadoDog == 6) {
+			if (dogPos.x > MIN_X) {
+				if (!step) {
+					RLegs += 0.03f; FLegs += 0.03f; head += 0.03f; tail += 0.03f;
+					if (RLegs > 15.0f) step = true;
+				}
+				else {
+					RLegs -= 0.03f; FLegs -= 0.03f; head -= 0.03f; tail -= 0.03f;
+					if (RLegs < -15.0f) step = false;
+				}
+				dogPos.x -= MOVE_SPEED;
+			}
+			else {
+				estadoDog = 7;
+				targetRot = dogRot + 135.0f;
+				RLegs = 0.0f; FLegs = 0.0f; head = 0.0f; tail = 0.0f;
+			}
+		}
+
+		// Girar hacia (0,0,0)
+		else if (estadoDog == 7) {
+			if (dogRot < targetRot) {
+				dogRot += ROTATION_SPEED;
+			}
+			else {
+				dogRot = targetRot;
+				estadoDog = 8;
+			}
+		}
+
+		// Caminata diagonal de regreso a (0,0,0)
+		else if (estadoDog == 8) {
+			if (dogPos.x < -0.001f || dogPos.z < -0.001f) {
+
+				if (!step) {
+					RLegs += 0.03f; FLegs += 0.03f; head += 0.03f; tail += 0.03f;
+					if (RLegs > 15.0f) step = true;
+				}
+				else {
+					RLegs -= 0.03f; FLegs -= 0.03f; head -= 0.03f; tail -= 0.03f;
+					if (RLegs < -15.0f) step = false;
+				}
+
+				if (dogPos.x < 0.0f) {
+					dogPos.x += MOVE_SPEED;
+					if (dogPos.x > 0.0f) dogPos.x = 0.0f;
+				}
+
+				if (dogPos.z < 0.0f) {
+					dogPos.z += MOVE_SPEED;
+					if (dogPos.z > 0.0f) dogPos.z = 0.0f;
+				}
+			}
+			else {
+				dogPos.x = 0.0f;
+				dogPos.z = 0.0f;
+
+				if (AnimDog) {
+					estadoDog = 0;
+					dogRot = 0.0f;
+				}
+				else {
+					dogAnim = 0;
+					RLegs = 0.0f; FLegs = 0.0f; head = 0.0f; tail = 0.0f;
+				}
+			}
 		}
 	}
-}
+} 
 
-void MouseCallback(GLFWwindow *window, double xPos, double yPos)
+void MouseCallback(GLFWwindow* window, double xPos, double yPos)
 {
 	if (firstMouse)
 	{
@@ -572,7 +710,7 @@ void MouseCallback(GLFWwindow *window, double xPos, double yPos)
 	}
 
 	GLfloat xOffset = xPos - lastX;
-	GLfloat yOffset = lastY - yPos;  // Reversed since y-coordinates go from bottom to left
+	GLfloat yOffset = lastY - yPos;
 
 	lastX = xPos;
 	lastY = yPos;
